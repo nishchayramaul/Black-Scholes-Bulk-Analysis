@@ -1,0 +1,23 @@
+<div class="main-container">
+  <h1>Black-Scholes Options Pricing Calculator</h1>
+  
+  <!-- File Uploader Component -->
+  <app-file-uploader 
+    (uploadSuccess)="onUploadSuccess($event)"
+    (uploadError)="onUploadError($event)">
+  </app-file-uploader>
+
+  <!-- Results Table Component -->
+  @if (showResults && results) {
+    <div class="results-section">
+      <div class="results-header">
+        <h2>Calculation Results</h2>
+      </div>
+      <app-results-table 
+        [data]="results" 
+        [loading]="loading">
+      </app-results-table>
+    </div>
+  }
+</div>
+

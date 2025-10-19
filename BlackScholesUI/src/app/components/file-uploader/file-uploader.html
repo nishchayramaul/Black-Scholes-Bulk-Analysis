@@ -1,0 +1,42 @@
+<div class="file-uploader-container">
+  <h3>Upload CSV or Excel File</h3>
+  <p class="file-info">Supported formats: .csv, .xlsx, .xls (Max size: 60MB)</p>
+  
+  <div class="upload-section">
+    <input 
+      type="file" 
+      (change)="onFileChange($event)" 
+      accept=".csv,.xlsx,.xls"
+      [disabled]="isUploading"
+      class="file-input"
+    />
+    
+    <button 
+      (click)="onUpload()" 
+      [disabled]="!selectedFile || isUploading"
+      class="upload-button"
+    >
+      @if (isUploading) {
+        Uploading... {{ progress }}%
+      } @else {
+        Upload File
+      }
+    </button>
+  </div>
+
+  @if (progress > 0 && progress < 100) {
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress"></div>
+      </div>
+      <span class="progress-text">{{ progress }}%</span>
+    </div>
+  }
+
+  @if (message) {
+    <div class="message" [class.error]="message.includes('failed') || message.includes('Invalid') || message.includes('too large')">
+      {{ message }}
+    </div>
+  }
+
+</div>

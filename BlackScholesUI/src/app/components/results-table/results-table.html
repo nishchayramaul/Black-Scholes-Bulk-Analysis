@@ -1,0 +1,141 @@
+<div class="results-container">
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Processing results...</p>
+    </div>
+  } @else if (data) {
+    <!-- Summary Stats -->
+    <div class="summary-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total Rows:</span>
+        <span class="stat-value">{{ getSummaryStats().total }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Successful:</span>
+        <span class="stat-value success">{{ getSummaryStats().successful }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Failed:</span>
+        <span class="stat-value error">{{ getSummaryStats().failed }}</span>
+      </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+      <table class="results-table">
+        <thead>
+          <tr>
+            @for (column of columns; track column.key; let i = $index) {
+              <th 
+                [style.width]="getColumnWidth(column)"
+                [class.dragging]="isColumnBeingDragged(i)"
+                [class.drop-target]="isColumnDropTarget(i)"
+                [class.resizing]="isColumnBeingResized(i)"
+                draggable="true"
+                (dragstart)="onDragStart($event, i)"
+                (dragover)="onDragOver($event, i)"
+                (dragleave)="onDragLeave()"
+                (drop)="onDrop($event, i)"
+                (dragend)="onDragEnd()">
+                <div class="column-header">
+                  <span class="column-label">{{ column.label }}</span>
+                  <div 
+                    class="resize-handle"
+                    (mousedown)="onResizeStart($event, i)"
+                    title="Drag to resize column">
+                  </div>
+                </div>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (result of paginatedResults; track result.row_index) {
+            <tr>
+              @for (column of columns; track column.key; let i = $index) {
+                <td 
+                  [style.width]="getColumnWidth(column)"
+                  [class.error-cell]="result.error">
+                  @if (column.key === 'option_type') {
+                    <span [class]="'option-type ' + result.input_data.option_type">
+                      {{ result.input_data.option_type.toUpperCase() }}
+                    </span>
+                  } @else {
+                    {{ formatNumber(getCellValue(result, column.key), column.key) }}
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+      <div class="pagination-info">
+        <span>Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ getMathMin(currentPage * pageSize, data.results.length) }} of {{ data.results.length }} entries</span>
+        <div class="page-size-selector">
+          <label for="pageSize">Show:</label>
+          <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+          <span>entries</span>
+        </div>
+      </div>
+
+      <div class="pagination-controls">
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(1)"
+          title="First Page"
+        >
+          ««
+        </button>
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
+          title="Previous Page"
+        >
+          ‹
+        </button>
+
+        @for (page of getPageNumbers(); track page) {
+          <button 
+            class="pagination-btn"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(currentPage + 1)"
+          title="Next Page"
+        >
+          ›
+        </button>
+        <button 
+          class="pagination-btn" 
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(totalPages)"
+          title="Last Page"
+        >
+          »»
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="no-data">
+      <p>No results to display. Upload a file to see calculations.</p>
+    </div>
+  }
+</div>
